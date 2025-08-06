@@ -1,77 +1,64 @@
 
 import tkinter as tk
-import re
+from PIL import ImageTk, Image
 
-window = tk.Tk() # Napravio je novi prozor (window)
+window = tk.Tk()
 window.geometry("1024x720")
-window.title("Moj program")
-
-is_dark_mode = True
-
-window.configure(bg="black")
-
-# Creating a main label
-tk.Label(window,
-         text="Hello how are you doing?",
-         font=("Arial", 16),
-         fg="darkblue",
-         bg="orange"
-).pack()
+window.title("Lista proizvoda")
 
 
-#============ Sign Up Button ==============
+fruit_info = {
+    "Apple": "Apples are sweet, crunchy fruits. They come in many colors.",
+    "Banana": "Bananas are rich in potassium and great for energy.",
+    "Cherry": "Cherries are small, round, and often red or black.",
+    "Date": "Dates are sweet fruits from date palms, popular in Middle East.",
+    "Elderberry": "Elderberries are used in syrups and have immune-boosting properties."
+}
 
-def on_click():
-
-    email = email_entry.get()
-
-    pattern = r"^[\w\.-]+@[\w\.-]+\.\w+$"
-
-    if re.match(pattern, email) is None:
-        print("Uneti email nije u dobrom formatu")
-
-    if email == "admin@admin.com" and password_entry.get() == "123456":
-        print("Dobrosao")
-    else:
-        print("Pogresni kredencijali!")
+fruit_images = {
+    "Apple": "apple.jpeg",
+    "Banana": "banana.jpg",
+}
 
 
-tk.Button(window,
-          text="Sign up!",
-          font=("Arial", 16),
-          bg="darkblue",
-          fg="white",
-          command=on_click
-).pack(pady=15)
+def show_item_info(event):
+    selection = listbox.curselection() #current selection - trenutna selekcija
+    name = listbox.get(selection)
+
+    product_info.configure(state='normal')
+
+    image = Image.open(fruit_images[name]) # Image.open("Apple.jpeg")
+    image = image.resize((50, 50))
+
+    photo = ImageTk.PhotoImage(image)
+
+    product_info.delete('1.0', tk.END)
+    product_info.insert(tk.END, fruit_info[name])
+
+    image_label.config(image=photo)
+    image_label.image = photo
+
+    product_info.configure(state='disabled')
 
 
-def toggle_dark_mode():
-    global is_dark_mode
 
-    if is_dark_mode:
-        is_dark_mode = False
-        window.configure(bg="white")
-    else:
-        is_dark_mode = True
-        window.configure(bg="black")
+product_list = ["Apple", "Banana", "Cherry", "Date", "Elderberry"]
 
-tk.Button(window,
-          text="Dark Mode",
-          font=("Arial", 16),
-          bg="orange",
-          fg="white",
-          command=toggle_dark_mode
-).pack(pady=15)
+listbox = tk.Listbox(window, height=50)
+listbox.pack(side="left", padx=10)
 
-#=============== Entry ===============
-password_entry = tk.Entry(window, width=50)
-password_entry.pack()
+for item in product_list:
+    listbox.insert(tk.END, item)
 
-#================ Email Entry ==========
-# - Mora biti email (regex) (ako nije ispisite u konzoli gresku)
-# - ako je email "admin@admin.com" i sifra "123456" print("Dobrodosao!")
 
-email_entry = tk.Entry(window, width=50)
-email_entry.pack()
+listbox.bind("<<ListboxSelect>>", show_item_info)
+
+
+product_info = tk.Text(window, width=50, height=50, font=("Arial", 14))
+product_info.pack(side="left")
+
+image_label = tk.Label(window, bg="white", width=50, height=50)
+image_label.pack(side="left", padx=20)
+
 
 window.mainloop()
